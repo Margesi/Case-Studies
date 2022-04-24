@@ -45,3 +45,13 @@ for (i in 3:251) {
   
 }
 
+predictions[[4]][[1]][1]
+
+predicted<-vector(length = 249)
+for (i in 1:249) {
+  predicted[i]<- predictions[[i+2]][[1]][1]
+  
+}
+
+library(Metrics)
+rmse(alltogether$GDPC1_gr[-c(1,2,3)], predicted)
