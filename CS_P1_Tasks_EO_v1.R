@@ -177,20 +177,24 @@ data_varp_forecast_eo <- data.frame(project1data_final$sasdate[26:251],project1d
 head(data_forecast_eo) #9/1/1959
 head(data_var_forecast_eo) #6/1/1961 7 0s
 head(data_varp_forecast_eo) #23 0s
-
+library(lubridate)
 colnames(data_forecast_eo) <- c("dates","gdp_real", "ar_forecast")
 final_ar <- data.frame(data_forecast_eo)
 var_missing <- data.frame(project1data_final$sasdate[3:9], 0, 0)
 colnames(var_missing) <- c("dates", "gdp_real", "var_forecast")
 colnames(data_var_forecast_eo) <- c("dates","gdp_real", "var_forecast")
 final_var <- rbind(data_var_forecast_eo,var_missing )
+final_var$dates <- as.Date(final_var$dates, "%m/%d/%Y")
 final_var <- final_var%>%
-  as.Date(final_var$dates, "%m/%d/%Y")%>%
-  arrange(dates)
+  arrange(ymd(final_var$dates))
+
 varp_missing <- data.frame(project1data_final$sasdate[3:25], 0,0)
 colnames(varp_missing) <- c("dates", "gdp_real", "varp_forecast")
 colnames(data_varp_forecast_eo) <- c("dates","gdp_real", "varp_forecast")
-final_varp <- rbind(data_var_forecast_eo,var_missing )
+final_varp <- rbind(data_varp_forecast_eo,var_missing )
+final_varp$dates <- as.Date(final_varp$dates, "%m/%d/%Y")
+final_varp <- final_varp%>%
+  arrange(ymd(final_varp$dates))
 
 final_plot <- data.frame(final_ar, final_var, final_varp)
 final_plot$dates <- as.Date(final_plot$dates, "%m/%d/%Y")
@@ -207,5 +211,5 @@ varp_plot_total <- ggplot(final_plot, aes(dates)) +
   plot(final_plot$gdp_real, type = "l")
   points(final_plot$ar_forecast, type = "l", col = 2, lty = 2)
   points(final_plot$var_forecast, type = "l", col = 3, lty = 2)
-  points(final_plot$varp_forecast, type = "l", col = 4, lty = 2)
+  points(final_plot$var_forecast.1, type = "l", col = 5, lty = 2)
 
