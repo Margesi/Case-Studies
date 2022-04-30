@@ -8,6 +8,7 @@ library(fpp2)
 library(xtable)
 library(stats)
 library(Metrics)
+library(lubridate)
 
 X2022_02 <- read_csv(file ="2022-02.csv")
 
@@ -119,6 +120,29 @@ rmse(project1data_model[10:251],varfc)
 sqrt(mean((project1data_model[10:251] - varfc)^2))
 # task d
 library(lmtest)
+
+unr_coefs <- c()
+cum_coefs <- c()
+fed_coefs <- c()
+cpi_coefs <- c()
+m1_coefs <- c()
+sp5_coefs <- c()
+for (i in 9:251) {
+  varmod_gr <- VAR(GDPVAR[1:i], p = 1, type = "const", season = NULL, exog = NULL) 
+  unr_coefs <- append(unr_coefs, varmod_gr$varresult$GDPC1$coefficients[1])
+  cum_coefs <- append(cum_coefs, varmod_gr$varresult$GDPC1$coefficients[2])
+  fed_coefs <- append(fed_coefs, varmod_gr$varresult$GDPC1$coefficients[3])
+  cpi_coefs <- append(cpi_coefs, varmod_gr$varresult$GDPC1$coefficients[5])
+  m1_coefs <- append(m1_coefs, varmod_gr$varresult$GDPC1$coefficients[6])
+  sp5_coefs <- append(sp5_coefs, varmod_gr$varresult$GDPC1$coefficients[7])
+  
+}
+
+null <- rep(0, 242)
+
+mean(cum_coefs)/sqrt(var(cum_coefs))
+
+t.test(data.frame(cpi_coefs), y=null)
 varmod_gr <- VAR(GDPVAR[1:251], p = 1, type = "const", season = NULL, exog = NULL)
 
 coefs <- rbind(varmod_gr$varresult$UNRATESTx$coefficients,
@@ -177,7 +201,7 @@ data_varp_forecast_eo <- data.frame(project1data_final$sasdate[26:251],project1d
 head(data_forecast_eo) #9/1/1959
 head(data_var_forecast_eo) #6/1/1961 7 0s
 head(data_varp_forecast_eo) #23 0s
-library(lubridate)
+
 colnames(data_forecast_eo) <- c("dates","gdp_real", "ar_forecast")
 final_ar <- data.frame(data_forecast_eo)
 var_missing <- data.frame(project1data_final$sasdate[3:9], 0, 0)
