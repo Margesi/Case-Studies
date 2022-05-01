@@ -93,7 +93,7 @@ arfc <- append(arfc,forecasts$mean)
 ts.plot(project1data_model[3:251])
 points(arfc, type = "l", col = 2, lty = 2)
 
-data_forecast_eo <- data.frame(project1data_final$sasdate[3:251],project1data_final$GDPC1[3:251], arfc)
+ar_data <- data.frame(project1data_final$sasdate[3:251],project1data_final$GDPC1[3:251], arfc)
 
 rmse(project1data_model[3:251],arfc)
 
@@ -114,41 +114,41 @@ for (i in 9:250) {
 ts.plot(project1data_model[9:251])
 points(varfc, type = "l", col = 2, lty = 2)
 
-data_var_forecast_eo <- data.frame(project1data_final$sasdate[10:251],project1data_final$GDPC1[10:251],varfc)
+var_data <- data.frame(project1data_final$sasdate[10:251],project1data_final$GDPC1[10:251],varfc)
 
 rmse(project1data_model[10:251],varfc)
 # task d Granger
 
-ones <- rep(1, (250))
-zt1 <- project1data_final$GDPC1[2:(251)]
-zt2 <- project1data_final$CUMFNS[2:(251)]
-zt3 <- project1data_final$UNRATESTx[2:(251)]
-zt4 <- project1data_final$CPIAUCSL[2:(251)]
-zt5 <- project1data_final$FEDFUNDS[2:(251)]
-zt6 <- project1data_final$M1REAL[2:(251)]
-zt7 <- project1data_final$`S&P 500`[2:(251)]
-z <- cbind(ones,zt1,zt2,zt3,zt4,zt5,zt6,zt7)
+one_vec <- rep(1, (250))
+z1 <- project1data_final$GDPC1[2:(251)]
+z2 <- project1data_final$CUMFNS[2:(251)]
+z3 <- project1data_final$UNRATESTx[2:(251)]
+z4 <- project1data_final$CPIAUCSL[2:(251)]
+z5 <- project1data_final$FEDFUNDS[2:(251)]
+z6 <- project1data_final$M1REAL[2:(251)]
+z7 <- project1data_final$`S&P 500`[2:(251)]
+z <- cbind(one_vec,z1,z2,z3,z4,z5,z6,z7)
 Z <- matrix(t(z), nrow = 8, ncol= 250 )
-yt1 <- project1data_final$GDPC1[3:(252)]
-yt2 <- project1data_final$CUMFNS[3:(252)]
-yt3 <- project1data_final$UNRATESTx[3:(252)]
-yt4 <- project1data_final$CPIAUCSL[3:(252)]
-yt5 <- project1data_final$FEDFUNDS[3:(252)]
-yt6 <- project1data_final$M1REAL[3:(252)]
-yt7 <- project1data_final$`S&P 500`[3:(252)]
-y <- cbind(yt1,yt2,yt3,yt4,yt5,yt6,yt7)
+y1 <- project1data_final$GDPC1[3:(252)]
+y2 <- project1data_final$CUMFNS[3:(252)]
+y3 <- project1data_final$UNRATESTx[3:(252)]
+y4 <- project1data_final$CPIAUCSL[3:(252)]
+y5 <- project1data_final$FEDFUNDS[3:(252)]
+y6 <- project1data_final$M1REAL[3:(252)]
+y7 <- project1data_final$`S&P 500`[3:(252)]
+y <- cbind(y1,y2,y3,y4,y5,y6,y7)
 Y <- matrix(t(y), nrow = 7, ncol=250 )
-A <- Y %*% t(Z) %*% solve(Z %*% t(Z))
-U <- Y - A%*%Z
+A_hat <- Y %*% t(Z) %*% solve(Z %*% t(Z))
+U <- Y - A_hat%*%Z
 covar <- (U %*% t(U))*(1/242)
 var <- kronecker(solve(Z %*% t(Z)),covar)
-A[1,2]/(sqrt(var[8,8])) #GDP
-A[1,3]/(sqrt(var[15,15])) #CUM
-A[1,4]/(sqrt(var[22,22])) #UNR
-A[1,5]/(sqrt(var[29,29])) #CPI
-A[1,6]/(sqrt(var[36,36])) #FED
-A[1,7]/(sqrt(var[43,43])) #M1
-A[1,8]/(sqrt(var[50,50])) #SP
+A_hat[1,2]/(sqrt(var[8,8])) #GDP
+A_hat[1,3]/(sqrt(var[15,15])) #CUM
+A_hat[1,4]/(sqrt(var[22,22])) #UNR
+A_hat[1,5]/(sqrt(var[29,29])) #CPI
+A_hat[1,6]/(sqrt(var[36,36])) #FED
+A_hat[1,7]/(sqrt(var[43,43])) #M1
+A_hat[1,8]/(sqrt(var[50,50])) #SP
 qt(0.05/2, 241, lower.tail=FALSE)
 
 
@@ -166,25 +166,25 @@ rmse(project1data_model[26:251],varfc3)
 
 ##Graph for task e
 
-data_varp_forecast_eo <- data.frame(project1data_final$sasdate[26:251],project1data_final$GDPC1[26:251],varfc3)
-head(data_forecast_eo) #9/1/1959
-head(data_var_forecast_eo) #6/1/1961 7 0s
-head(data_varp_forecast_eo) #23 0s
+varp_data <- data.frame(project1data_final$sasdate[26:251],project1data_final$GDPC1[26:251],varfc3)
+head(ar_data) #9/1/1959
+head(var_data) #6/1/1961 7 0s
+head(varp_data) #23 0s
 
-colnames(data_forecast_eo) <- c("dates","gdp_real", "ar_forecast")
-final_ar <- data.frame(data_forecast_eo)
+colnames(ar_data) <- c("dates","gdp_real", "ar_forecast")
+final_ar <- data.frame(ar_data)
 var_missing <- data.frame(project1data_final$sasdate[3:9], 0, 0)
 colnames(var_missing) <- c("dates", "gdp_real", "var_forecast")
-colnames(data_var_forecast_eo) <- c("dates","gdp_real", "var_forecast")
-final_var <- rbind(data_var_forecast_eo,var_missing )
+colnames(var_data) <- c("dates","gdp_real", "var_forecast")
+final_var <- rbind(var_data,var_missing )
 final_var$dates <- as.Date(final_var$dates, "%m/%d/%Y")
 final_var <- final_var%>%
   arrange(ymd(final_var$dates))
 
 varp_missing <- data.frame(project1data_final$sasdate[3:25], 0,0)
 colnames(varp_missing) <- c("dates", "gdp_real", "varp_forecast")
-colnames(data_varp_forecast_eo) <- c("dates","gdp_real", "varp_forecast")
-final_varp <- rbind(data_varp_forecast_eo,var_missing )
+colnames(varp_data) <- c("dates","gdp_real", "varp_forecast")
+final_varp <- rbind(varp_data,varp_missing )
 final_varp$dates <- as.Date(final_varp$dates, "%m/%d/%Y")
 final_varp <- final_varp%>%
   arrange(ymd(final_varp$dates))
@@ -192,8 +192,8 @@ final_varp <- final_varp%>%
 final_plot <- data.frame(final_ar, final_var, final_varp)
 final_plot$dates <- as.Date(final_plot$dates, "%m/%d/%Y")
 
-  plot(final_plot$gdp_real, type = "l")
-  points(final_plot$ar_forecast, type = "l", col = 2, lty = 2)
-  points(final_plot$var_forecast, type = "l", col = 3, lty = 2)
-  points(final_plot$var_forecast.1, type = "l", col = 5, lty = 2)
+plot(final_plot$gdp_real, type = "l")
+points(final_plot$ar_forecast, type = "l", col = 2, lty = 2)
+points(final_plot$var_forecast, type = "l", col = 3, lty = 2)
+points(final_plot$varp_forecast, type = "l", col = 5, lty = 2)
 
