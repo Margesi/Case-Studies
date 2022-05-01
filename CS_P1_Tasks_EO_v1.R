@@ -25,7 +25,7 @@ project1data <- cbind(X2022_02,project1data_diff)
 project1data_final <- project1data[,c(1,3,7:12)]
 head(project1data_final,10)
 
-#Task 1
+#Task a
 plot_file<-ts(project1data_final,start=1959, frequency = 4)
 
 autoplot(plot_file)+
@@ -70,7 +70,7 @@ autoplot(plot_file[,c(9,10,12)])+
 acf(na.omit(project1data_final$GDPC1), main = "ACF of the GDP growth")
 
 
-#Task 2
+#Task b
 library(xts)
 project1data_gdp <- project1data_final[2:252,5]
 
@@ -117,67 +117,40 @@ points(varfc, type = "l", col = 2, lty = 2)
 data_var_forecast_eo <- data.frame(project1data_final$sasdate[10:251],project1data_final$GDPC1[10:251],varfc)
 
 rmse(project1data_model[10:251],varfc)
-sqrt(mean((project1data_model[10:251] - varfc)^2))
-# task d
-library(lmtest)
+# task d Granger
 
-unr_coefs <- c()
-cum_coefs <- c()
-fed_coefs <- c()
-cpi_coefs <- c()
-m1_coefs <- c()
-sp5_coefs <- c()
-for (i in 9:251) {
-  varmod_gr <- VAR(GDPVAR[1:i], p = 1, type = "const", season = NULL, exog = NULL) 
-  unr_coefs <- append(unr_coefs, varmod_gr$varresult$GDPC1$coefficients[1])
-  cum_coefs <- append(cum_coefs, varmod_gr$varresult$GDPC1$coefficients[2])
-  fed_coefs <- append(fed_coefs, varmod_gr$varresult$GDPC1$coefficients[3])
-  cpi_coefs <- append(cpi_coefs, varmod_gr$varresult$GDPC1$coefficients[5])
-  m1_coefs <- append(m1_coefs, varmod_gr$varresult$GDPC1$coefficients[6])
-  sp5_coefs <- append(sp5_coefs, varmod_gr$varresult$GDPC1$coefficients[7])
-  
-}
+ones <- rep(1, (250))
+zt1 <- project1data_final$GDPC1[2:(251)]
+zt2 <- project1data_final$CUMFNS[2:(251)]
+zt3 <- project1data_final$UNRATESTx[2:(251)]
+zt4 <- project1data_final$CPIAUCSL[2:(251)]
+zt5 <- project1data_final$FEDFUNDS[2:(251)]
+zt6 <- project1data_final$M1REAL[2:(251)]
+zt7 <- project1data_final$`S&P 500`[2:(251)]
+z <- cbind(ones,zt1,zt2,zt3,zt4,zt5,zt6,zt7)
+Z <- matrix(t(z), nrow = 8, ncol= 250 )
+yt1 <- project1data_final$GDPC1[3:(252)]
+yt2 <- project1data_final$CUMFNS[3:(252)]
+yt3 <- project1data_final$UNRATESTx[3:(252)]
+yt4 <- project1data_final$CPIAUCSL[3:(252)]
+yt5 <- project1data_final$FEDFUNDS[3:(252)]
+yt6 <- project1data_final$M1REAL[3:(252)]
+yt7 <- project1data_final$`S&P 500`[3:(252)]
+y <- cbind(yt1,yt2,yt3,yt4,yt5,yt6,yt7)
+Y <- matrix(t(y), nrow = 7, ncol=250 )
+A <- Y %*% t(Z) %*% solve(Z %*% t(Z))
+U <- Y - A%*%Z
+covar <- (U %*% t(U))*(1/242)
+var <- kronecker(solve(Z %*% t(Z)),covar)
+A[1,2]/(sqrt(var[8,8])) #GDP
+A[1,3]/(sqrt(var[15,15])) #CUM
+A[1,4]/(sqrt(var[22,22])) #UNR
+A[1,5]/(sqrt(var[29,29])) #CPI
+A[1,6]/(sqrt(var[36,36])) #FED
+A[1,7]/(sqrt(var[43,43])) #M1
+A[1,8]/(sqrt(var[50,50])) #SP
+qt(0.05/2, 241, lower.tail=FALSE)
 
-null <- rep(0, 242)
-
-mean(cum_coefs)/sqrt(var(cum_coefs))
-
-t.test(data.frame(cpi_coefs), y=null)
-varmod_gr <- VAR(GDPVAR[1:251], p = 1, type = "const", season = NULL, exog = NULL)
-
-coefs <- rbind(varmod_gr$varresult$UNRATESTx$coefficients,
-varmod_gr$varresult$CUMFNS$coefficients,
-varmod_gr$varresult$FEDFUNDS$coefficients,
-varmod_gr$varresult$GDPC1$coefficients,
-varmod_gr$varresult$CPIAUCSL$coefficients,
-varmod_gr$varresult$M1REAL$coefficients,
-varmod_gr$varresult$S.P.500$coefficients)
-
-grangertest(GDPVAR$GDPC1~GDPVAR$CUMFNS)
-causality(varmod_gr, cause = "CUMFNS")
-coefs[c(4,2),c(4,2)]
-
-grangertest(GDPVAR$GDPC1~GDPVAR$UNRATESTx) #yes
-causality(varmod_gr, cause = "UNRATESTx")
-coefs[c(4,1),c(4,1)]
-
-x <- summary(varmod)
-
-grangertest(GDPVAR$GDPC1~GDPVAR$FEDFUNDS)
-causality(varmod_gr, cause = "FEDFUNDS")
-coefs[c(4,3),c(4,3)]
-
-grangertest(GDPVAR$GDPC1~GDPVAR$CPIAUCSL) #yes
-causality(varmod_gr, cause = "CPIAUCSL")
-coefs[c(4,5),c(4,5)]
-
-grangertest(GDPVAR$GDPC1~GDPVAR$M1REAL) #yes
-causality(varmod_gr, cause = "M1REAL")
-coefs[c(4,6),c(4,6)]
-
-grangertest(GDPVAR$GDPC1~GDPVAR$`S&P 500`) #yes
-causality(varmod_gr, cause = "S.P.500")
-coefs[c(4,7),c(4,7)]
 
 #task e
 
@@ -191,11 +164,7 @@ for (i in 25:250) {
 
 rmse(project1data_model[26:251],varfc3)
 
-ts.plot(project1data_model[1:251])
-points(arfc, type = "l", col = 2, lty = 2)
-points(varfc, type = "l", col = 3, lty = 2)
-points(varfc3, type = "l", col = 4, lty = 2)
-
+##Graph for task e
 
 data_varp_forecast_eo <- data.frame(project1data_final$sasdate[26:251],project1data_final$GDPC1[26:251],varfc3)
 head(data_forecast_eo) #9/1/1959
@@ -222,15 +191,6 @@ final_varp <- final_varp%>%
 
 final_plot <- data.frame(final_ar, final_var, final_varp)
 final_plot$dates <- as.Date(final_plot$dates, "%m/%d/%Y")
-
-varp_plot_total <- ggplot(final_plot, aes(dates)) +  
-  geom_line(aes(y = gdp_real, colour = "actual GDP growth"))
-  geom_line(aes(y = ar_forecast, colour = "AR(1) forecasted GDP growth")) +
-  geom_line(aes(y = var_forecast, colour = "VAR(1) forecasted GDP growth")) +
-  geom_line(aes(y = varp_forecast, colour = "VAR(3) forecasted GDP growth")) +
-  ggtitle("Forecast of GDP Growth") + theme(plot.title = element_text(hjust = 0.5)) +
-  xlab("Time") + ylab("actual GDP growth/ forecasted GDP growth in %") +
-  theme(legend.position="bottom")
 
   plot(final_plot$gdp_real, type = "l")
   points(final_plot$ar_forecast, type = "l", col = 2, lty = 2)
