@@ -83,31 +83,31 @@ plot.ts(project1data_model, main="Growth in GDP", ylab="%GDPC1")
 
 #AR Model
 
-arfc <- c()
-for (i in 2:250) {
-armod1 <- arima(project1data_model[1:i], c(1,0,0))
-forecasts <- forecast(armod1, 1)
-arfc <- append(arfc,forecasts$mean)
-}
+#arfc <- c()
+#for (i in 2:250) {
+#armod1 <- arima(project1data_model[1:i], c(1,0,0))
+#forecasts <- forecast(armod1, 1)
+#arfc <- append(arfc,forecasts$mean)
+#}
 
 arfc_ols <- c()
-for (i in 2:250) {
-  armod1_ols <- ar.ols(project1data_model[1:i], order = 1)
+for (i in 3:250) {
+  armod1_ols <- ar.ols(project1data_model[1:i], order.max =1, aic =FALSE)
   forecasts_ols <- predict(armod1_ols, n.ahead = 1)
   arfc_ols <- append(arfc_ols,forecasts_ols$pred)
 }
 
-ts.plot(project1data_model[2:251])
-points(arfc, type = "l", col = 2, lty = 2)
+ts.plot(project1data_model[4:251])
+#points(arfc, type = "l", col = 2, lty = 2)
 points(arfc_ols, type = "l", col = 3, lty = 2)
 
 
-ar_data <- data.frame(project1data_final$sasdate[3:251],project1data_final$GDPC1[3:251], arfc)
+ar_data <- data.frame(project1data_final$sasdate[4:251],project1data_final$GDPC1[4:251], arfc_ols)
 
-rmse(project1data_model[3:251],arfc)
+#rmse(project1data_model[3:251],arfc)
 
 
-rmse(project1data_model[3:251],arfc_ols)
+rmse(project1data_model[4:251],arfc_ols)
 
 # task c
 # VAR(1) model
@@ -183,8 +183,14 @@ head(ar_data) #9/1/1959
 head(var_data) #6/1/1961 7 0s
 head(varp_data) #23 0s
 
+ar_missing <- data.frame(project1data_final$sasdate[4], 0, 0)
+colnames(ar_missing) <- c("dates", "gdp_real", "ar_forecast")
 colnames(ar_data) <- c("dates","gdp_real", "ar_forecast")
-final_ar <- data.frame(ar_data)
+final_ar <- rbind(ar_data, ar_missing)
+final_ar$dates <- as.Date(final_ar$dates, "%m/%d/%Y")
+final_ar <- final_ar%>%
+  arrange(ymd(final_ar$dates))
+
 var_missing <- data.frame(project1data_final$sasdate[3:9], 0, 0)
 colnames(var_missing) <- c("dates", "gdp_real", "var_forecast")
 colnames(var_data) <- c("dates","gdp_real", "var_forecast")
@@ -208,14 +214,4 @@ plot(final_plot$gdp_real, type = "l")
 points(final_plot$ar_forecast, type = "l", col = 2, lty = 2)
 points(final_plot$var_forecast, type = "l", col = 3, lty = 2)
 points(final_plot$varp_forecast, type = "l", col = 5, lty = 2)
-
-varfc_2 <- c()
-for (i in 9:251) {
-  varmod_2 <- VAR(GDPVAR[1:i], p = 1, type = "const", season = NULL, exog = NULL) 
-  forecasts <- predict(varmod, n.ahead=1)
-  varfc <- append(varfc,forecasts$fcst$GDPC1[1])
-}
-
-summary(varmod_2)
-covar
 
