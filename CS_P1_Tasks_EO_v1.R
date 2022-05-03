@@ -90,12 +90,24 @@ forecasts <- forecast(armod1, 1)
 arfc <- append(arfc,forecasts$mean)
 }
 
-ts.plot(project1data_model[3:251])
+arfc_ols <- c()
+for (i in 2:250) {
+  armod1_ols <- ar.ols(project1data_model[1:i], order = 1)
+  forecasts_ols <- predict(armod1_ols, n.ahead = 1)
+  arfc_ols <- append(arfc_ols,forecasts_ols$pred)
+}
+
+ts.plot(project1data_model[2:251])
 points(arfc, type = "l", col = 2, lty = 2)
+points(arfc_ols, type = "l", col = 3, lty = 2)
+
 
 ar_data <- data.frame(project1data_final$sasdate[3:251],project1data_final$GDPC1[3:251], arfc)
 
 rmse(project1data_model[3:251],arfc)
+
+
+rmse(project1data_model[3:251],arfc_ols)
 
 # task c
 # VAR(1) model
@@ -196,4 +208,14 @@ plot(final_plot$gdp_real, type = "l")
 points(final_plot$ar_forecast, type = "l", col = 2, lty = 2)
 points(final_plot$var_forecast, type = "l", col = 3, lty = 2)
 points(final_plot$varp_forecast, type = "l", col = 5, lty = 2)
+
+varfc_2 <- c()
+for (i in 9:251) {
+  varmod_2 <- VAR(GDPVAR[1:i], p = 1, type = "const", season = NULL, exog = NULL) 
+  forecasts <- predict(varmod, n.ahead=1)
+  varfc <- append(varfc,forecasts$fcst$GDPC1[1])
+}
+
+summary(varmod_2)
+covar
 
