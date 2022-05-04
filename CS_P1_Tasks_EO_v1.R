@@ -1,17 +1,18 @@
 # Project Tasks 
 
 library(dplyr)
-library(formattable)
 library(readr)
 library(stargazer)
 library(fpp2)
-library(xtable)
 library(stats)
 library(Metrics)
 library(lubridate)
 library(xts)
 library(vars)
 library(gridExtra)
+library(xtable)
+
+
 
 X2022_02 <- read_csv(file ="2022-02.csv")
 
@@ -30,9 +31,8 @@ head(project1data_final,10)
 
 #Descriptive Statistics
 
-stargazer(project1data_final,type="text", digits = 2, median = TRUE)
+stargazer(project1data_final, digits = 2, median = TRUE)
 
-par(mfrow=c(4,2))
 
 ##CUMFNS
 annotations1 <- data.frame(
@@ -43,7 +43,7 @@ annotations1 <- data.frame(
   label = c("Min:", "Mean:", "Max:", "Median:")
 ) 
 
-ggplot(project1data_final, aes(x = CUMFNS))+
+hist1 <- ggplot(project1data_final, aes(x = CUMFNS))+
   geom_histogram(bins=20,color = "white", fill = "gray")+
   geom_text(data = annotations1, 
             aes(x = c(64,80,91,80), y = c(3,12,8,8),  label = paste(label, x)), size = 2.5, fontface = "bold")+
@@ -55,7 +55,7 @@ ggplot(project1data_final, aes(x = CUMFNS))+
   geom_vline(aes(xintercept = mean(CUMFNS) + 2*sd(CUMFNS)), color = "#000000", size = 0.7, linetype = "dashed") +
   geom_vline(aes(xintercept = mean(CUMFNS) - 2*sd(CUMFNS)), color = "#000000", size = 0.7, linetype = "dashed")+
   labs(
-    title = "Histogram of Capacity Utilization: Manufacturing (SIC)",
+    title = "Capacity Utilization: Manufacturing (SIC)",
     subtitle ="(Percent of Capacity)",
     x = "CUMFNS",
     y = "Count"
@@ -75,12 +75,12 @@ annotations2 <- data.frame(
   label = c("Min:", "Mean:", "Max:", "Median:")
 ) 
 
-ggplot(project1data_final, aes(x = UNRATESTx))+
+hist2 <- ggplot(project1data_final, aes(x = UNRATESTx))+
   geom_histogram(bins=20,color = "white", fill = "gray")+
   geom_text(data = annotations2, 
             aes(x = c(2.7,4.75,12,4.75), y = c(18,5,8,8),  label = paste(label, x)), size = 2.5, fontface = "bold")+
-  geom_text(  aes(x = 2.5, y = -1,  label ="\U003BC - 2\u03C3" ), size = 2, fontface = "bold")+
-  geom_text(  aes(x = 7.3, y = -1,  label ="\U003BC + 2\u03C3" ), size = 2, fontface = "bold")+
+  geom_text(  aes(x = 2.5, y = 0,  label ="\U003BC - 2\u03C3" ), size = 2, fontface = "bold")+
+  geom_text(  aes(x = 7.3, y = 0,  label ="\U003BC + 2\u03C3" ), size = 2, fontface = "bold")+
   geom_text(  aes(x = 2.7, y = 21,  label =as.character(project1data_final[which(round(project1data_final$UNRATESTx,2)==2.81),]$sasdate)), size = 2.5)+
   geom_text(  aes(x = 12, y = 11,  label =as.character(project1data_final[which(round(project1data_final$UNRATESTx,2)==12.25),]$sasdate)), size = 2.5)+
   geom_vline(aes(xintercept = mean(UNRATESTx)), color = "#000000", size = 0.5) +
@@ -104,7 +104,7 @@ annotations3 <- data.frame(
   label = c("Min:", "Mean:", "Max:", "Median:")
 ) 
 
-ggplot(project1data_final, aes(x = FEDFUNDS))+
+hist3 <- ggplot(project1data_final, aes(x = FEDFUNDS))+
   geom_histogram(bins=20,color = "white", fill = "gray")+
   geom_text(data = annotations3, 
             aes(x = c(0,4.8,17.5,4.8), y = c(18,5,8,8),  label = paste(label, x)), size = 2.5, fontface = "bold")+
@@ -135,7 +135,7 @@ annotations4 <- data.frame(
   label = c("Min:", "Mean:", "Max:", "Median:")
 ) 
 
-ggplot(project1data_final[-1,], aes(x = GDPC1))+
+hist4<- ggplot(project1data_final[-1,], aes(x = GDPC1))+
   geom_histogram(bins=20,color = "white", fill = "gray")+
   geom_text(data = annotations4, 
             aes(x = c(-9,0.7,7.5,0.7), y = c(23,12,8,19),  label = paste(label, x)), size = 2.5, fontface = "bold")+
@@ -147,7 +147,7 @@ ggplot(project1data_final[-1,], aes(x = GDPC1))+
   geom_vline(aes(xintercept = mean(GDPC1) + 2*sd(GDPC1)), color = "#000000", size = 0.7, linetype = "dashed") +
   geom_vline(aes(xintercept = mean(GDPC1) - 2*sd(GDPC1)), color = "#000000", size = 0.7, linetype = "dashed")+
   labs(
-    title = "Histogram of growth in GDP (percent)",
+    title = "Growth in GDP (percent)",
     x = "%GPDC1",
     y = "Count"
   )+
@@ -165,7 +165,7 @@ annotations5 <- data.frame(
   label = c("Min:", "Mean:", "Max:", "Median:")
 ) 
 
-ggplot(project1data_final[-1,], aes(x = CPIAUCSL))+
+hist5<-ggplot(project1data_final[-1,], aes(x = CPIAUCSL))+
   geom_histogram(bins=20,color = "white", fill = "gray")+
   geom_text(data = annotations5, 
             aes(x = c(-2.3,0.9,4,0.8), y = c(5,12,5,19),  label = paste(label, x)), size = 2.5, fontface = "bold")+
@@ -177,7 +177,7 @@ ggplot(project1data_final[-1,], aes(x = CPIAUCSL))+
   geom_vline(aes(xintercept = mean(CPIAUCSL) + 2*sd(CPIAUCSL)), color = "#000000", size = 0.7, linetype = "dashed") +
   geom_vline(aes(xintercept = mean(CPIAUCSL) - 2*sd(CPIAUCSL)), color = "#000000", size = 0.7, linetype = "dashed")+
   labs(
-    title = "Histogram of growth in CPI (percent)",
+    title = "Growth in CPI (percent)",
     x = "%CPIAUCSL",
     y = "Count"
   )+
@@ -195,7 +195,7 @@ annotations6 <- data.frame(
   label = c("Min:", "Mean:", "Max:", "Median:")
 ) 
 
-ggplot(project1data_final[-1,], aes(x = M1REAL))+
+hist6<-ggplot(project1data_final[-1,], aes(x = M1REAL))+
   geom_histogram(bins=20,color = "white", fill = "gray")+
   geom_text(data = annotations6, 
             aes(x = c(-3.8,1.5,207.5,0.47), y = c(5,12,15,19),  label = paste(label, x)), size = 2.5, fontface = "bold")+
@@ -207,7 +207,7 @@ ggplot(project1data_final[-1,], aes(x = M1REAL))+
   geom_vline(aes(xintercept = mean(M1REAL) + 2*sd(M1REAL)), color = "#000000", size = 0.7, linetype = "dashed") +
   geom_vline(aes(xintercept = mean(M1REAL) - 2*sd(M1REAL)), color = "#000000", size = 0.7, linetype = "dashed")+
   labs(
-    title = "Histogram of growth in M1 (percent)",
+    title = "Growth in M1 (percent)",
     x = "%M1REAL",
     y = "Count"
   )+
@@ -225,7 +225,7 @@ annotations7 <- data.frame(
   label = c("Min:", "Mean:", "Max:", "Median:")
 ) 
 
-ggplot(project1data_final[-c(1,246),], aes(x = M1REAL))+
+hist7<-ggplot(project1data_final[-c(1,246),], aes(x = M1REAL))+
   geom_histogram(bins=20,color = "white", fill = "gray")+
   geom_text(data = annotations7, 
             aes(x = c(-3.82,0.67,33,0.47), y = c(7,12,5,19),  label = paste(label, x)), size = 2.5, fontface = "bold")+
@@ -237,7 +237,7 @@ ggplot(project1data_final[-c(1,246),], aes(x = M1REAL))+
   geom_vline(aes(xintercept = mean(M1REAL) + 2*sd(M1REAL)), color = "#000000", size = 0.7, linetype = "dashed") +
   geom_vline(aes(xintercept = mean(M1REAL) - 2*sd(M1REAL)), color = "#000000", size = 0.7, linetype = "dashed")+
   labs(
-    title = "Histogram of growth in M1 (percent)",
+    title = "Growth in M1 (percent) (2020Q2 removed)",
     x = "%M1REAL",
     y = "Count"
   )+
@@ -254,7 +254,7 @@ annotations8 <- data.frame(
   label = c("Min:", "Mean:", "Max:", "Median:")
 ) 
 
-ggplot(project1data_final[-1,], aes(x = `S&P 500`))+
+hist8<-ggplot(project1data_final[-1,], aes(x = `S&P 500`))+
   geom_histogram(bins=20,color = "white", fill = "gray")+
   geom_text(data = annotations8, 
             aes(x = c(-27.3,1.96,20.1,2), y = c(5,12,5,19),  label = paste(label, x)), size = 2.5, fontface = "bold")+
@@ -266,7 +266,7 @@ ggplot(project1data_final[-1,], aes(x = `S&P 500`))+
   geom_vline(aes(xintercept = mean(`S&P 500`) + 2*sd(`S&P 500`)), color = "#000000", size = 0.7, linetype = "dashed") +
   geom_vline(aes(xintercept = mean(`S&P 500`) - 2*sd(`S&P 500`)), color = "#000000", size = 0.7, linetype = "dashed")+
   labs(
-    title = "Histogram of growth in S&P 500 (percent)",
+    title = "Growth in S&P 500 (percent)",
     x = "%S&P 500",
     y = "Count"
   )+
@@ -275,9 +275,13 @@ ggplot(project1data_final[-1,], aes(x = `S&P 500`))+
   theme(
     plot.title = element_text(color = "black", size = 10, face = "bold"))
 
+grid.arrange(hist1,hist2,hist3,hist4, nrow=2,ncol=2)
+
+grid.arrange(hist5,hist8,hist6,hist7, nrow=2,ncol=2)
+
 
 #Task a
-plot_file<-ts(project1data_final,start=1959, frequency = 4)
+plot_file<-ts(project1data_final[,2:8],start=1959, frequency = 4)
 
 
 plot_1 <- autoplot(plot_file[,"UNRATESTx"])+
@@ -344,23 +348,9 @@ grid.arrange(plot_4, plot_5, plot_7,  nrow=3, ncol=1)
 grid.arrange(plot_6, plot_8,  nrow=2, ncol=1)
 
 #Task b
-project1data_gdp <- project1data_final[2:252,5]
-
-project1data_model<-  ts(project1data_gdp,start=c(1959,2), freq = 4)
-
-print(project1data_model)              
-
-plot.ts(project1data_model, main="Growth in GDP", ylab="%GDPC1")
-
+project1data_model <- ts(project1data_final[2:252,5],start=c(1959,2), freq = 4)
 
 #AR Model
-
-#arfc <- c()
-#for (i in 2:250) {
-#armod1 <- arima(project1data_model[1:i], c(1,0,0))
-#forecasts <- forecast(armod1, 1)
-#arfc <- append(arfc,forecasts$mean)
-#}
 
 arfc_ols <- c()
 for (i in 3:250) {
@@ -370,20 +360,19 @@ for (i in 3:250) {
 }
 
 ts.plot(project1data_model[4:251])
-#points(arfc, type = "l", col = 2, lty = 2)
 points(arfc_ols, type = "l", col = 3, lty = 2)
 
-
 ar_data <- data.frame(project1data_final$sasdate[4:251],project1data_final$GDPC1[4:251], arfc_ols)
+rmse_ar <- rmse(project1data_model[4:251],arfc_ols)
 
-#rmse(project1data_model[3:251],arfc)
+ARresult <- data.frame(armod1_ols$x.intercept, armod1_ols$x.mean,armod1_ols$ar, rmse(project1data_model[4:251],arfc_ols))
 
+colnames(ARresult) <- c("Intercept","Mean","Coefficient","RMSE")
 
-rmse(project1data_model[4:251],arfc_ols)
+xtable(ARresult, digits = 3, type="text")
 
 # task c
 # VAR(1) model
-
 
 GDPVAR <- xts( project1data_final[-1,-1],project1data_final$sasdate[-1],order.by=as.Date(project1data_final$sasdate[-1], format = "%m/%d/%Y"))
 
@@ -398,8 +387,9 @@ ts.plot(project1data_model[9:251])
 points(varfc, type = "l", col = 2, lty = 2)
 
 var_data <- data.frame(project1data_final$sasdate[10:251],project1data_final$GDPC1[10:251],varfc)
+xtable(varmod$varresult$GDPC1)
 
-rmse(project1data_model[10:251],varfc)
+rmse_var1<-rmse(project1data_model[10:251],varfc)
 # task d Granger
 
 one_vec <- rep(1, (250))
@@ -434,10 +424,13 @@ A_hat[1,7]/(sqrt(var[43,43])) #M1
 A_hat[1,8]/(sqrt(var[50,50])) #SP
 qt(0.05/2, 241, lower.tail=FALSE)
 
-
+varmod_gr <- VAR(GDPVAR[1:251], p = 1, type = "const", season = NULL, exog = NULL) 
+xtable(varmod_gr$varresult$GDPC1)
 #task e
 
-VARselect(GDPVAR, type= "const", lag.max = 8)
+lag_select <- VARselect(GDPVAR, type= "const", lag.max = 8)
+
+xtable(lag_select$criteria)
 varfc3 <- c()
 for (i in 25:250) {
   varmod3 <- VAR(GDPVAR[1:i], p = 3, type = "const", season = NULL, exog = NULL) 
@@ -445,16 +438,23 @@ for (i in 25:250) {
   varfc3 <- append(varfc3,forecasts3$fcst$GDPC1[1])
 }
 
-rmse(project1data_model[26:251],varfc3)
+rmse_var3 <- rmse(project1data_model[26:251],varfc3)
 
+
+xtable(varmod3$varresult$GDPC1)
+
+RMSE <- data.frame("RMSE",rmse_ar, rmse_var1, rmse_var3)
+
+colnames(RMSE)<- c("","AR(1) Model","VAR(1) Model","VAR(3) Model")
+xtable(RMSE, digits = 3)
 ##Graph for task e
 
 varp_data <- data.frame(project1data_final$sasdate[26:251],project1data_final$GDPC1[26:251],varfc3)
-head(ar_data) #9/1/1959
+head(ar_data) #12/1/1959 3 0s
 head(var_data) #6/1/1961 7 0s
 head(varp_data) #23 0s
 
-ar_missing <- data.frame(project1data_final$sasdate[4], 0, 0)
+ar_missing <- data.frame(project1data_final$sasdate[1:3], project1data_final$GDPC1[1:3], 0)
 colnames(ar_missing) <- c("dates", "gdp_real", "ar_forecast")
 colnames(ar_data) <- c("dates","gdp_real", "ar_forecast")
 final_ar <- rbind(ar_data, ar_missing)
@@ -462,7 +462,7 @@ final_ar$dates <- as.Date(final_ar$dates, "%m/%d/%Y")
 final_ar <- final_ar%>%
   arrange(ymd(final_ar$dates))
 
-var_missing <- data.frame(project1data_final$sasdate[3:9], 0, 0)
+var_missing <- data.frame(project1data_final$sasdate[1:9], project1data_final$GDPC1[1:9], 0)
 colnames(var_missing) <- c("dates", "gdp_real", "var_forecast")
 colnames(var_data) <- c("dates","gdp_real", "var_forecast")
 final_var <- rbind(var_data,var_missing )
@@ -470,7 +470,7 @@ final_var$dates <- as.Date(final_var$dates, "%m/%d/%Y")
 final_var <- final_var%>%
   arrange(ymd(final_var$dates))
 
-varp_missing <- data.frame(project1data_final$sasdate[3:25], 0,0)
+varp_missing <- data.frame(project1data_final$sasdate[1:25], project1data_final$GDPC1[1:25],0)
 colnames(varp_missing) <- c("dates", "gdp_real", "varp_forecast")
 colnames(varp_data) <- c("dates","gdp_real", "varp_forecast")
 final_varp <- rbind(varp_data,varp_missing )
@@ -481,8 +481,15 @@ final_varp <- final_varp%>%
 final_plot <- data.frame(final_ar, final_var, final_varp)
 final_plot$dates <- as.Date(final_plot$dates, "%m/%d/%Y")
 
-plot(final_plot$gdp_real, type = "l")
-points(final_plot$ar_forecast, type = "l", col = 2, lty = 2)
-points(final_plot$var_forecast, type = "l", col = 3, lty = 2)
-points(final_plot$varp_forecast, type = "l", col = 5, lty = 2)
+plot(final_plot$dates,final_plot$gdp_real, type = "l", lty=1, xlab="Dates", ylab="GDPC1", col= "darkgrey")
+points(final_plot$dates,c(rep(NA,3),final_plot$ar_forecast[4:251]), type = "l", lty=2, cex=15)
+legend(x=1960, y=-5, legend=c("Actual Growth Rates", "AR(1) Forecast"), col=c("darkgrey", "black"),lty=1:2, cex=0.8)
+
+plot(final_plot$dates,final_plot$gdp_real, type = "l", lty=1,xlab="Dates", ylab="GDPC1", col= "darkgrey")
+points(final_plot$dates,c(rep(NA, 9),final_plot$var_forecast[10:251]), type = "l", col = "black", lty = 2, cex=15)
+legend(x=1960, y=-5, legend=c("Actual Growth Rates", "VAR(1) Forecast"), col=c("darkgrey", "black"),lty=1:2, cex=0.8)
+
+plot(final_plot$dates,final_plot$gdp_real, type = "l", lty=1,xlab="Dates",col="darkgrey", ylab="GDPC1")
+points(final_plot$dates,c(rep(NA, 25),final_plot$varp_forecast[26:251]), type = "l", lty = 2, cex=15)
+legend(x=1960, y=-5, legend=c("Actual Growth Rates", "VAR(3) Forecast"), col=c("darkgrey", "black"),lty=1:2, cex=0.8)
 
